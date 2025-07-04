@@ -1,0 +1,257 @@
+CREATE DATABASE kms_project;
+GO
+
+USE kms_project;
+GO
+
+DROP TABLE IF EXISTS kms_sales;
+CREATE TABLE kms_sales (
+    [Date] DATE,
+    [Region] VARCHAR(100),
+    [Product] VARCHAR(255),
+    [Category] VARCHAR(100),
+    [Unit_Price] FLOAT,
+    [Sales] FLOAT,
+    [Quantity] INT,
+    [Profit] FLOAT
+);
+
+-----Question1----
+
+    SELECT 
+    YEAR([Order_Date]) AS Sales_Year,
+    SUM(Sales) AS Total_Sales
+FROM 
+    [dbo].[KMS Sql Case Study cleanEST]
+WHERE 
+    [Order_Date] IS NOT NULL
+GROUP BY 
+    YEAR([Order_Date])
+ORDER BY 
+    Sales_Year;
+
+
+    ---QUESTION 2----
+SELECT TOP 3
+    Region,
+    SUM(Sales) AS Total_Sales
+FROM 
+    [dbo].[KMS Sql Case Study cleanEST]
+WHERE 
+    Region IS NOT NULL
+GROUP BY 
+    Region
+ORDER BY 
+    Total_Sales DESC;
+----QUESTION3-----
+
+    SELECT 
+   Product_Category,
+    SUM(Profit) AS Total_Profit
+FROM 
+    [dbo].[KMS Sql Case Study cleanEST]
+WHERE 
+    Product_Category IS NOT NULL
+GROUP BY 
+   Product_Category
+ORDER BY 
+    Total_Profit DESC;
+
+question 4:
+
+SELECT TOP 10
+    Customer,
+    SUM(Sales) AS Total_Sales
+FROM 
+    [dbo].[KMS Sql Case Study cleanEST]
+WHERE 
+    Customer IS NOT NULL
+GROUP BY 
+    Customer
+ORDER BY 
+    Total_Sales ASC;
+
+    SELECT 
+    Customer_Name,
+    Product_Category,
+    SUM(Sales) AS Total_Spent
+FROM 
+    [dbo].[KMS Sql Case Study cleanEST]
+WHERE 
+    Customer_Name IN (
+        SELECT TOP 10 Customer_Name
+        FROM [dbo].[KMS Sql Case Study cleanEST]
+        WHERE Customer_Name IS NOT NULL
+        GROUP BY Customer_Name
+        ORDER BY SUM(Sales) ASC
+    )
+GROUP BY 
+    Customer_Name, Product_Category
+ORDER BY 
+    Customer_Name, Total_Spent DESC;
+
+✅ Recommendation to Management:
+Based on the analysis, the bottom 10 customers contribute the least to total revenue. Most of them purchased low-cost, single-unit items infrequently.
+To increase revenue from these customers, KMS should consider:
+
+Upselling & Cross-Selling: Offer bundle deals or related premium products.
+
+Targeted Promotions: Send personalized discounts or loyalty incentives to re-engage them.
+
+Account-Based Follow-Up: Reach out through sales reps to understand their needs and encourage bulk orders.
+
+Customer Segmentation: Group them into a “low-tier” segment and test special campaigns aimed at increasing order size or frequency.
+
+
+
+QUESTION 5:
+    SELECT TOP 1 * 
+FROM [dbo].[KMS Sql Case Study cleanEST];
+
+
+SELECT 
+    [Ship_Mode], 
+    SUM(Shipping_Cost) AS Total_Shipping_Cost
+FROM 
+    [dbo].[KMS Sql Case Study cleanEST]
+WHERE 
+    Ship_Mode IS NOT NULL
+GROUP BY 
+    [Ship_Mode]
+ORDER BY 
+    Total_Shipping_Cost DESC;
+
+question 6
+    SELECT TOP 10
+    Customer_Name,
+    SUM(Sales) AS Total_Spent
+FROM 
+    [dbo].[KMS Sql Case Study cleanEST]
+WHERE 
+    Customer_Name IS NOT NULL
+GROUP BY 
+    Customer_Name
+ORDER BY 
+    Total_Spent DESC;
+
+
+    SELECT 
+    Customer_Name,
+    Product_Name,
+    SUM(Sales) AS Product_Spent
+FROM 
+    [dbo].[KMS Sql Case Study cleanEST]
+WHERE 
+    Customer_Name IN (
+        SELECT TOP 10 Customer_Name
+        FROM [dbo].[KMS Sql Case Study cleanEST]
+        GROUP BY Customer_Name
+        ORDER BY SUM(Sales) DESC
+    )
+GROUP BY 
+    Customer_Name, Product_Name
+ORDER BY 
+    Customer_Name, Product_Spent DESC;
+
+7
+
+
+    SELECT TOP 1
+    Customer_Name,
+    SUM(Sales) AS Total_Sales
+FROM 
+    [dbo].[KMS Sql Case Study cleanEST]
+WHERE 
+    Customer_Segment = 'Small Business'
+GROUP BY 
+    Customer_Name
+ORDER BY 
+    Total_Sales DESC;
+
+8
+
+    SELECT TOP 1
+    Customer_Name,
+    COUNT(*) AS Order_Count
+FROM 
+    [dbo].[KMS Sql Case Study cleanEST]
+WHERE 
+    Customer_Segment = 'Corporate'
+    AND [Order_Date] BETWEEN '2009-01-01' AND '2021-12-31'
+GROUP BY 
+    Customer_Name
+ORDER BY 
+    Order_Count DESC;
+
+9
+
+
+    SELECT TOP 1
+    Customer_Name,
+    SUM(Profit) AS Total_Profit
+FROM 
+    [dbo].[KMS Sql Case Study cleanEST]
+WHERE 
+    Customer_Segment = 'Consumer'
+GROUP BY 
+    Customer_Name
+ORDER BY 
+    Total_Profit DESC;
+
+10
+
+
+    SELECT DISTINCT
+    Customer_Name,
+    Customer_Segment,
+    SUM(Profit) AS Total_Profit
+FROM 
+    [dbo].[KMS Sql Case Study cleanEST]
+GROUP BY 
+    Customer_Name, Customer_Segment
+HAVING 
+    SUM(Profit) < 0
+ORDER BY 
+    Total_Profit;
+
+11.
+    SELECT TOP 5 * 
+FROM [dbo].[KMS Sql Case Study cleanEST];
+
+SELECT 
+    Order_Priority,
+    Ship_Mode,
+    COUNT(*) AS Num_Orders,
+    SUM(Sales) AS Total_Sales,
+    SUM(Shipping_Cost) AS Total_Shipping_Cost
+FROM 
+    [dbo].[KMS Sql Case Study cleanEST]
+GROUP BY 
+    Order_Priority, Ship_Mode
+ORDER BY 
+    Order_Priority, Ship_Mode;
+
+After analyzing the data, shipping methods were used almost equally — with Delivery Truck, Express Air, and Regular Shipping all being applied regardless of order priority.
+
+This suggests that KMS lacks a structured shipping policy. Orders marked Low priority were often shipped using the most expensive method (Express Air), while some Critical orders were shipped with the slowest method (Delivery Truck).
+
+This mismatch leads to two key issues:
+
+1. Unnecessary shipping costs for non-urgent orders
+
+2. Potential delivery delays for urgent orders
+
+ Recommendation for KMS:
+KMS should immediately implement an automated shipping logic that aligns:
+
+ 1.Critical/High Priority → Express Air 
+ 2.Medium Priority → Regular Shipping
+ 3.Low Priority → Delivery Truck 
+
+This will:
+
+1. Save money on shipping costs
+
+2. Improve delivery time for important orders
+
+3. Create consistency across fulfillment
